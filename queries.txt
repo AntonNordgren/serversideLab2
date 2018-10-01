@@ -1,0 +1,74 @@
+
+2.1
+db.albums.count()
+
+2.2
+db.albums.aggregate([ {
+        $group: {
+            _id: null,
+            total: { $sum: "$price" }
+        }
+	}
+])
+
+2.3
+db.albums.find().sort({price: -1, name: 1}).pretty()
+
+2.4
+db.albums.aggregate([
+    { $group: { _id: '$name' } },
+    { $sort: { _id: 1} },
+    { $limit: 3}
+])
+
+2.5
+db.albums.aggregate([
+    { 
+        $group: 
+        { 
+            _id: null,
+            minPrice: { $min: "$price" },
+            maxPrice: { $max: "$price" },
+            average: { $avg : "$price" }
+        }
+    }
+])
+
+2.6
+db.albums.aggregate([
+    { $match : { price : { $gt : { } } } },
+    { $group : { _id : null, nrOfDocuments : { $sum : 1 } } },
+])
+
+
+2.7
+db.albums.explain("executionStats").aggregate([
+    { $group : { _id : "$category", nrOfDocuments : { $sum : 1} } }
+])
+10300 ms
+
+2.8
+db.albums.explain("executionStats").aggregate([
+    { $match : { category : "CD" } },
+    { 
+        $group : {
+            _id : "$name",
+            highestPrice: { $max : "$price" }
+        },
+    }
+])
+10209 ms
+
+2.9
+db.albums.explain("executionStats").aggregate([
+    { $sort : { name : 1 }},
+    { $skip : 20 },
+    { $limit : 1 }
+])
+15400 ms
+
+2.10
+db.albums.aggregate([
+    { $match : { category : "Vinyl"} },
+    { $group : { _id : "$category", total : { $sum : "$price" } } }
+])
