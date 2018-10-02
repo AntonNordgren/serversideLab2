@@ -9,7 +9,7 @@ MongoClient.connect(url, { useNewUrlParser: true }, (err, client) => {
 
     if (err) throw err;
 
-    client.db(databaseName).collection(collectionName).dropIndex({ "category" : 1 })
+    client.db(databaseName).collection(collectionName).dropIndex({ category : 1 })
     console.log('Success!')
     client.close();
 });

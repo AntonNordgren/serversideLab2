@@ -3,7 +3,7 @@
 db.albums.count()
 
 2.2
-db.albums.aggregate([ {
+db.albums.explain("executionStats").aggregate([ {
         $group: {
             _id: null,
             total: { $sum: "$price" }
@@ -12,7 +12,12 @@ db.albums.aggregate([ {
 ])
 
 2.3
-db.albums.find().sort({price: -1, name: 1}).pretty()
+db.albums.aggregate([
+    { $sort : { price : -1, name : 1 } }
+], {
+  allowDiskUse:true,
+  cursor:{}
+})
 
 2.4
 db.albums.aggregate([
@@ -36,16 +41,21 @@ db.albums.aggregate([
 
 2.6
 db.albums.aggregate([
-    { $match : { price : { $gt : { } } } },
+    { $match : { price : { $gt : 97.551 } } },
     { $group : { _id : null, nrOfDocuments : { $sum : 1 } } },
 ])
 
 
 2.7
 db.albums.explain("executionStats").aggregate([
-    { $group : { _id : "$category", nrOfDocuments : { $sum : 1} } }
+    { 
+        $group : {
+            _id : "$category",
+            nrOfDocuments : { $sum : 1}
+        } 
+    }
 ])
-10300 ms
+10041 ms
 
 2.8
 db.albums.explain("executionStats").aggregate([
@@ -57,18 +67,32 @@ db.albums.explain("executionStats").aggregate([
         },
     }
 ])
-10209 ms
+10200 ms
 
 2.9
+before : 15400 ms
+insert : { name : 1 }
+after : 10 ms
 db.albums.explain("executionStats").aggregate([
     { $sort : { name : 1 }},
     { $skip : 20 },
     { $limit : 1 }
 ])
-15400 ms
 
 2.10
 db.albums.aggregate([
     { $match : { category : "Vinyl"} },
     { $group : { _id : "$category", total : { $sum : "$price" } } }
 ])
+
+---------------------------------------------------------------------
+
+3.3 a. Vad förväntar ni er ska hända med tidsåtgången?
+
+3.3 b. Vad hände egentligen, blev det någon skillnad?
+
+3.3 c. Vilka index gjorde störst skillnad?
+
+3.4 d. Provade ni några index som inte gjorde någon skillnad? Kan ni förklara varför?
+
+---------------------------------------------------------------------
